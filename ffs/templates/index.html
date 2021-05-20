@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+
+{% block header %}
+
+{% endblock %}
+
+{% block content %}
+    {% for matchup in matchups %}
+        <div>
+            <h2>{{ matchup["Year"] }} - {{ matchup["Week"] }}</h2>
+            <h4>{{ matchup["Home"] }} vs. {{ matchup["Away"] }}</h4>
+            <h4>{{ matchup["HomeScore"] }} to {{ matchup["AwayScore"] }}</h4>
+        </div>
+    {% endfor %}
+{% endblock %}

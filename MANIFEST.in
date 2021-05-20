@@ -1,0 +1,6 @@
+include LICENSE.rst
+include ffs/schema.sql
+graft ffs/static
+graft ffs/templates
+graft tests
+global-exclude *.pyc
