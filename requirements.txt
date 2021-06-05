@@ -1,6 +1,5 @@
 click==8.0.1
 Flask==2.0.1
--e git+https://github.com/spkane31/fantasy-football-site.git@7e7d8c55362e924a4638a99a3ae59dc4bd704a95#egg=flaskr
 itsdangerous==2.0.1
 Jinja2==3.0.1
 MarkupSafe==2.0.1
