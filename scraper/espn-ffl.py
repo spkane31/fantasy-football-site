@@ -1,63 +1,47 @@
 import json
 import os
 
-from espn_api.football import League
+from dotenv import find_dotenv, load_dotenv
+from espn_api.football import League, matchup
+
+load_dotenv(find_dotenv())
 
 SWID = os.environ["SWID"] 
 ESPN_S2 = os.environ["ESPN_S2"] 
 
+matchup_data = {}
 years = [2017, 2018, 2019, 2020]
 
-PRINT_STR = "{}: {} \t{}: {}"
-
-raw_data = {}
-
-matchup_key = "{}-{}-{}-{}"
+PRINT_STR = "{}: {}"
 
 for year in years:
+    matchup_data[year] = {}
     league = League(league_id=345674, year=year, swid=SWID, espn_s2=ESPN_S2)
 
     for week in range(1, 15):
-
+        matchup_data[year][week] = []
+        print(PRINT_STR.format(year, week))
         for box_score in league.scoreboard(week):
             try:
-                temp_key = matchup_key.format(
-                    box_score.home_team.owner,
-                    box_score.away_team.owner,
-                    week,
-                    year,
-                )
-                raw_data[temp_key] = {
-                    "year": year,
-                    "week": week,
-                    "home_team": box_score.home_team.owner,
-                    "away_team": box_score.away_team.owner,
-                    "home_team_score": box_score.home_score,
-                    "away_team_score": box_score.away_score
-                }
-                # raw_data
-                # raw_data.append([
-                #     year,
-                #     week,
-                #     box_score.home_team.owner,
-                #     box_score.home_score,
-                #     box_score.away_team.owner,
-                #     box_score.away_score
-                # ])
+                if box_score.home_score > box_score.away_score:
+                    matchup_data[year][week].append({
+                        "winner": box_score.home_team.owner.rstrip(" "),
+                        "loser": box_score.away_team.owner.rstrip(" "),
+                        "winner_score": box_score.home_score,
+                        "loser_score": box_score.away_score,
+                    })
+                else:
+                    matchup_data[year][week].append({
+                        "winner": box_score.away_team.owner.rstrip(" "),
+                        "loser": box_score.home_team.owner.rstrip(" "),
+                        "winner_score": box_score.away_score,
+                        "loser_score": box_score.home_score,
+                    })
+
             except Exception as exc:
                 print(year, week)
                 print(exc)
 
 
-with open('matchups.csv', mode='w') as f:
-    json.dumps(raw_data, f, indent=4)
-
-# import csv
-
-# COLUMNS = ["Year", "Week", "HomeTeam", "HomeScore", "AwayTeam", "AwayScore"]
-
-# with open('matchups.csv', mode='w') as f:
-#     writer = csv.writer(f, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
-
-#     for d in raw_data:
-#         writer.writerow(d)
+with open('history.json', mode='w') as f:
+    json.dump(matchup_data, f, indent=4)

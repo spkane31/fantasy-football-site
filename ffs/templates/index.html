@@ -4,12 +4,16 @@
 
 {% endblock %}
 
-{% block content %}
-    {% for matchup in matchups %}
-        <div>
-            <h2>{{ matchup["Year"] }} - {{ matchup["Week"] }}</h2>
-            <h4>{{ matchup["Home"] }} vs. {{ matchup["Away"] }}</h4>
-            <h4>{{ matchup["HomeScore"] }} to {{ matchup["AwayScore"] }}</h4>
-        </div>
+{% block app_content %}
+    <h2>All Time Low</h2>
+    <div>{{ lowest.low_team }} scored a measly {{ lowest.low_score }}</div>
+    {% for year, weeks_dict in data.items() %}
+        <h2>Year: {{ year }}</h2>
+        {% for week, matchup_list in weeks_dict.items() %}
+            <h4>Week: {{ week }}</h4>
+            {% for matchup in matchup_list %}
+                <div>{{ matchup.winner }} beat {{ matchup.loser }} by a score of: {{ matchup.winner_score }} to {{ matchup.loser_score }}</div>
+            {% endfor %}
+        {% endfor %}
     {% endfor %}
 {% endblock %}
