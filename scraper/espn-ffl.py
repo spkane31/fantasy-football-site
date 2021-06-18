@@ -31,26 +31,29 @@ def scrape_matchups():
             for box_score in league.scoreboard(week):
                 try:
                     if box_score.home_score > box_score.away_score:
-                        matchup_data[year][week].append({
-                            "winner": box_score.home_team.owner.rstrip(" "),
-                            "loser": box_score.away_team.owner.rstrip(" "),
-                            "winner_score": box_score.home_score,
-                            "loser_score": box_score.away_score,
-                        })
+                        matchup_data[year][week].append(
+                            {
+                                "winner": box_score.home_team.owner.rstrip(" "),
+                                "loser": box_score.away_team.owner.rstrip(" "),
+                                "winner_score": box_score.home_score,
+                                "loser_score": box_score.away_score,
+                            }
+                        )
                     else:
-                        matchup_data[year][week].append({
-                            "winner": box_score.away_team.owner.rstrip(" "),
-                            "loser": box_score.home_team.owner.rstrip(" "),
-                            "winner_score": box_score.away_score,
-                            "loser_score": box_score.home_score,
-                        })
+                        matchup_data[year][week].append(
+                            {
+                                "winner": box_score.away_team.owner.rstrip(" "),
+                                "loser": box_score.home_team.owner.rstrip(" "),
+                                "winner_score": box_score.away_score,
+                                "loser_score": box_score.home_score,
+                            }
+                        )
 
                 except Exception as exc:
                     print(year, week)
                     print(exc)
 
-
-    with open('history.json', mode='w') as f:
+    with open("history.json", mode="w") as f:
         json.dump(matchup_data, f, indent=4)
 
 
@@ -61,6 +64,7 @@ def create_connection(db_file="instance/ffs.sqlite"):
 INSERT_QUERY = "INSERT INTO matchups (year, week, winner, loser, winner_score, loser_score) VALUES (?, ?, ?, ?, ?, ?)"
 TOTAL_QUERY = "SELECT COUNT(*) FROM matchups"
 
+
 def get_count(table="matchups"):
     conn = create_connection()
     cur = conn.cursor()
@@ -68,6 +72,7 @@ def get_count(table="matchups"):
     result = cur.fetchone()
     conn.close()
     return result[0]
+
 
 # TODO: This should do a check to make sure the entry is not already there.
 def load_to_database():
@@ -86,9 +91,17 @@ def load_to_database():
     for year, year_dict in data.items():
         for week, matchups in year_dict.items():
             for matchup in matchups:
-                cur.execute(INSERT_QUERY, (
-                    year, week, matchup['winner'], matchup['loser'], matchup['winner_score'], matchup['loser_score'],
-                ))
+                cur.execute(
+                    INSERT_QUERY,
+                    (
+                        year,
+                        week,
+                        matchup["winner"],
+                        matchup["loser"],
+                        matchup["winner_score"],
+                        matchup["loser_score"],
+                    ),
+                )
 
     cur.execute(TOTAL_QUERY)
     result = cur.fetchone()
@@ -97,6 +110,7 @@ def load_to_database():
     conn.commit()
     conn.close()
     return
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()

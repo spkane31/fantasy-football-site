@@ -1,9 +1,6 @@
 from ffs.db import get_db
 from typing import Dict, Tuple
 
-import csv
-import json
-
 from flask import Blueprint, g
 from flask.templating import render_template
 
@@ -31,17 +28,21 @@ HIGHEST_5 = "SELECT year, week, winner, winner_score FROM matchups WHERE year !=
 BIGGEST_WINS = "SELECT id, (winner_score - loser_score) AS margin FROM matchups ORDER BY margin DESC LIMIT 5"
 SELECT_QUERY = "SELECT year, week, winner, loser, winner_score, loser_score FROM matchups WHERE id = ?"
 
+
 def matchups_to_json(data):
     ret = []
     for idx, d in enumerate(data):
-        ret.append({
-            "rank": idx + 1,
-            "year": d[0],
-            "week": d[1],
-            "team": d[2],
-            "score": d[3],
-        })
+        ret.append(
+            {
+                "rank": idx + 1,
+                "year": d[0],
+                "week": d[1],
+                "team": d[2],
+                "score": d[3],
+            }
+        )
     return ret
+
 
 def full_matchup_to_json(data, idx):
     return {
@@ -54,6 +55,7 @@ def full_matchup_to_json(data, idx):
         "loser_score": round(data[5], 2),
         "difference": round(data[4] - data[5], 2),
     }
+
 
 @bp.route("/")
 def index():
