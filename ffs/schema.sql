@@ -7,9 +7,9 @@ CREATE TABLE matchups (
 	id INTEGER NOT NULL,
     year INTEGER,
     week INTEGER,
-	home_team VARCHAR(64),
-	away_team VARCHAR(64),
-    home_score DOUBLE PRECISION,
-    away_score DOUBLE PRECISION,
+	winner VARCHAR(64),
+	loser VARCHAR(64),
+    winner_score DOUBLE PRECISION,
+    loser_score DOUBLE PRECISION,
 	PRIMARY KEY (id)
 );
