@@ -61,11 +61,24 @@ def create_connection(db_file="instance/ffs.sqlite"):
 INSERT_QUERY = "INSERT INTO matchups (year, week, winner, loser, winner_score, loser_score) VALUES (?, ?, ?, ?, ?, ?)"
 TOTAL_QUERY = "SELECT COUNT(*) FROM matchups"
 
+def get_count(table="matchups"):
+    conn = create_connection()
+    cur = conn.cursor()
+    cur.execute(TOTAL_QUERY)
+    result = cur.fetchone()
+    conn.close()
+    return result[0]
+
 # TODO: This should do a check to make sure the entry is not already there.
 def load_to_database():
     conn = create_connection()
 
     cur = conn.cursor()
+
+    n = get_count()
+    if n > 100:
+        print(f"Count is {n}, not inserting more data")
+        return
 
     with open("history.json") as f:
         data = json.load(f)
@@ -81,6 +94,7 @@ def load_to_database():
     result = cur.fetchone()
     print(f"Inserted {result[0]} entries")
 
+    conn.commit()
     conn.close()
     return
 
