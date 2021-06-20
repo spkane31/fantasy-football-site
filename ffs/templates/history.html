@@ -5,17 +5,13 @@
 {% endblock %}
 
 {% block app_content %}
-    <h2>All Time Low</h2>
-    {% for score in lows %}
-        <div>{{ score.rank }}. {{ score.year }} Week {{ score.week }} {{ score.team }} scored a measly {{ score.score }}</div>
+    {% for year, weeks_dict in data.items() %}
+        <h2>Year: {{ year }}</h2>
+        {% for week, matchup_list in weeks_dict.items() %}
+            <h4>Week: {{ week }}</h4>
+            {% for matchup in matchup_list %}
+                <div>{{ matchup.winner }} beat {{ matchup.loser }} by a score of: {{ matchup.winner_score }} to {{ matchup.loser_score }}</div>
+            {% endfor %}
+        {% endfor %}
     {% endfor %}
-    <h2>All Time Highs</h2>
-    {% for score in highs %}
-        <div>{{ score.rank }}. {{ score.year }} Week {{ score.week }} {{ score.team }} scored a monstrous {{ score.score }}</div>
-    {% endfor %}
-    <h2>Blowouts</h2>
-    {% for score in blowouts %}
-        <div>{{ score.rank }}. {{ score.year }} Week {{ score.week }} {{ score.winner }} beat {{score.loser }} by {{score.difference}} points! ({{score.winner_score}} to {{score.loser_score}})</div>
-    {% endfor %}
-
 {% endblock %}

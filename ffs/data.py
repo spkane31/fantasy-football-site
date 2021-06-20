@@ -1,10 +1,11 @@
-from ffs.db import get_db
+import json
 from typing import Dict, Tuple, List
 
 from flask import Blueprint
 from flask.templating import render_template
 
 from ffs.db import get_db
+from ._queries import *
 
 bp = Blueprint("data", __name__)
 
@@ -21,12 +22,6 @@ def _find_alltime_low(data: Dict[str, str]) -> Tuple[float, str]:
                     lowest_team = m["loser"]
 
     return lowest, lowest_team
-
-
-LOWEST_5 = "SELECT year, week, loser, loser_score FROM matchups ORDER BY loser_score ASC LIMIT 5"
-HIGHEST_5 = "SELECT year, week, winner, winner_score FROM matchups WHERE year != 2017 and week != 14 ORDER BY winner_score DESC LIMIT 5"
-BIGGEST_WINS = "SELECT id, (winner_score - loser_score) AS margin FROM matchups ORDER BY margin DESC LIMIT 5"
-SELECT_QUERY = "SELECT year, week, winner, loser, winner_score, loser_score FROM matchups WHERE id = ?"
 
 
 def matchups_to_json(data):
@@ -85,17 +80,17 @@ def index():
 @bp.route("/history")
 def history():
     """Show all matchups"""
-    return render_template("history.html", data={})
+    data = []
+    with open("history.json") as f:
+        data = json.load(f)
 
+    low_score, low_team = _find_alltime_low(data)
+    return render_template("history.html", data=data)
 
-UNIQUE_TEAMS = "SELECT DISTINCT winner FROM matchups;"
-WINS_COUNT = "SELECT COUNT(*) FROM matchups WHERE winner = ?"
-LOSS_COUNT = "SELECT COUNT(*) FROM matchups WHERE loser = ?"
-POINT_SCORED = "SELECT winner, loser, winner_score, loser_score FROM MATCHUPS"
 
 def sort_by_key(data: List[Dict[str, str]], key: str) -> None:
     """Simple bubble sort on list of dicts based on one key"""
-    for i in range(len(data)-1):
+    for i in range(len(data) - 1):
         for j in range(i, len(data)):
             if data[i][key] < data[j][key]:
                 data[i], data[j] = data[j], data[i]
