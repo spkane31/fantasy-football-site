@@ -4,6 +4,10 @@ A fun site for displaying fantasy football information. Mostly used for my abili
 
 Check out the progress of the site [here](http://172.104.7.13/)
 
+## Securing the Server
+
+Follow [this](https://www.digitalocean.com/community/tutorials/how-to-secure-nginx-with-let-s-encrypt-on-ubuntu-20-04) tutorial.
+
 ## Starting/stopping the server
 
 ```bash
@@ -15,3 +19,7 @@ python3 scraper/espn-ffl.py --load True
 gunicorn -b localhost:8000 -w 4 wsgi:app
 sudo supervisorctl start ffs
 ```
+
+## Troubleshooting
+
+* If the site dies after leaving your ssh session try [this](https://askubuntu.com/questions/8653/how-to-keep-processes-running-after-ending-ssh-session).
