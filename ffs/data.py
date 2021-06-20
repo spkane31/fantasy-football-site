@@ -1,7 +1,7 @@
 from ffs.db import get_db
-from typing import Dict, Tuple
+from typing import Dict, Tuple, List
 
-from flask import Blueprint, g
+from flask import Blueprint
 from flask.templating import render_template
 
 from ffs.db import get_db
@@ -86,3 +86,65 @@ def index():
 def history():
     """Show all matchups"""
     return render_template("history.html", data={})
+
+
+UNIQUE_TEAMS = "SELECT DISTINCT winner FROM matchups;"
+WINS_COUNT = "SELECT COUNT(*) FROM matchups WHERE winner = ?"
+LOSS_COUNT = "SELECT COUNT(*) FROM matchups WHERE loser = ?"
+POINT_SCORED = "SELECT winner, loser, winner_score, loser_score FROM MATCHUPS"
+
+def sort_by_key(data: List[Dict[str, str]], key: str) -> None:
+    """Simple bubble sort on list of dicts based on one key"""
+    for i in range(len(data)-1):
+        for j in range(i, len(data)):
+            if data[i][key] < data[j][key]:
+                data[i], data[j] = data[j], data[i]
+
+
+@bp.route("/all-time")
+def all_time():
+    """Show all time rankings"""
+    data = []
+
+    db = get_db()
+    cur = db.cursor()
+
+    result = cur.execute(UNIQUE_TEAMS)
+    all_teams = result.fetchall()
+
+    for team in all_teams:
+        temp = {"team": team[0], "points": 0, "points_against": 0}
+
+        cur.execute(WINS_COUNT, team)
+        result = cur.fetchone()
+
+        temp["wins"] = result[0]
+
+        cur.execute(LOSS_COUNT, team)
+        result = cur.fetchone()
+        temp["losses"] = result[0]
+
+        data.append(temp)
+
+    sort_by_key(data, "wins")
+
+    cur.execute(POINT_SCORED)
+    for result in cur.fetchall():
+        (winner, loser, winner_score, loser_score) = result
+        for d in data:
+            if d["team"] == winner:
+                d["points"] += winner_score
+                d["points_against"] += loser_score
+
+            elif d["team"] == loser:
+                d["points"] += loser_score
+                d["points_against"] += winner_score
+
+    # Get avg / game
+    for d in data:
+        d["points"] = round(d["points"], 2)
+        d["points_against"] = round(d["points_against"], 2)
+        d["points_per_game"] = round(d["points"] / (d["wins"] + d["losses"]), 2)
+        d["points_against_per_game"] = round(d["points_against"] / (d["wins"] + d["losses"]), 2)
+
+    return render_template("alltime.html", data=data)
