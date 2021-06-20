@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+{% block header %}
+
+{% endblock %}
+
+{% block app_content %}
+    <h2>All Time History</h2>
+    <table class="table">
+        <tr>
+            <th scope="col">Team</th>
+            <th scope="col">Wins</th>
+            <th scope="col">Losses</th>
+            <th scope="col">Points Scored</th>
+            <th scope="col">Points Against</th>
+            <th scope="col">Points Scored / Game</th>
+            <th scope="col">Points Against / Game</th>
+        </tr>
+        {% for d in data %}
+            <tr>
+                <td>{{ d.team }}</td>
+                <td>{{ d.wins }}</td>
+                <td>{{ d.losses }}</td>
+                <td>{{ d.points }}</td>
+                <td>{{ d.points_against }}</td>
+                <td>{{ d.points_per_game }}</td>
+                <td>{{ d.points_against_per_game }}</td>
+            </tr>
+        {% endfor %}
+    </table>
+{% endblock %}

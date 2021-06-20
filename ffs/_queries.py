@@ -1,0 +1,8 @@
+UNIQUE_TEAMS = "SELECT DISTINCT winner FROM matchups;"
+WINS_COUNT = "SELECT COUNT(*) FROM matchups WHERE winner = ?"
+LOSS_COUNT = "SELECT COUNT(*) FROM matchups WHERE loser = ?"
+POINT_SCORED = "SELECT winner, loser, winner_score, loser_score FROM MATCHUPS"
+LOWEST_5 = "SELECT year, week, loser, loser_score FROM matchups ORDER BY loser_score ASC LIMIT 5"
+HIGHEST_5 = "SELECT year, week, winner, winner_score FROM matchups WHERE year != 2017 and week != 14 ORDER BY winner_score DESC LIMIT 5"
+BIGGEST_WINS = "SELECT id, (winner_score - loser_score) AS margin FROM matchups ORDER BY margin DESC LIMIT 5"
+SELECT_QUERY = "SELECT year, week, winner, loser, winner_score, loser_score FROM matchups WHERE id = ?"
