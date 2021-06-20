@@ -57,6 +57,31 @@ def scrape_matchups():
         json.dump(matchup_data, f, indent=4)
 
 
+def scrape_draft_data():
+    """Scrape all draft data from 2017 to 2020"""
+    draft_data = {}
+    years = [2017, 2018, 2019, 2020]
+
+    for year in years:
+        draft_data[year] = {}
+        league = League(league_id=345674, year=year, swid=SWID, espn_s2=ESPN_S2)
+
+        count = 0
+        print(f"Year: {year}")
+        for pick in league.draft:
+            draft_data[year][count] = {
+                "Player": pick.playerName,
+                "PlayerID": pick.playerId,
+                "Round": pick.round_num,
+                "RoundPick": pick.round_pick,
+                "Team": pick.team.owner,
+            }
+            count += 1
+
+    with open("drafts.json", mode="w") as f:
+        json.dump(draft_data, f, indent=4)
+
+
 def create_connection(db_file="instance/ffs.sqlite"):
     return sqlite3.connect(db_file)
 
@@ -115,10 +140,13 @@ def load_to_database():
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--scrape", help="Re-scrape all data from ESPN")
+    parser.add_argument("--draft-only", help="Re-scrape all data from ESPN")
     parser.add_argument("--load", help="Load all data to database")
     args = parser.parse_args()
 
-    if args.scrape:
+    if args.draft_only:
+        scrape_draft_data()
+    elif args.scrape:
         scrape_matchups()
     if args.load:
         load_to_database()
