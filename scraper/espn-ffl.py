@@ -66,7 +66,7 @@ def scrape_draft_data():
         draft_data[year] = {}
         league = League(league_id=345674, year=year, swid=SWID, espn_s2=ESPN_S2)
 
-        count = 0
+        count = 1
         print(f"Year: {year}")
         for pick in league.draft:
             draft_data[year][count] = {
@@ -86,14 +86,22 @@ def create_connection(db_file="instance/ffs.sqlite"):
     return sqlite3.connect(db_file)
 
 
-INSERT_QUERY = "INSERT INTO matchups (year, week, winner, loser, winner_score, loser_score) VALUES (?, ?, ?, ?, ?, ?)"
-TOTAL_QUERY = "SELECT COUNT(*) FROM matchups"
+INSERT_MATCHUPS = "INSERT INTO matchups (year, week, winner, loser, winner_score, loser_score) VALUES (?, ?, ?, ?, ?, ?)"
+TOTAL_MATCHUPS_QUERY = "SELECT COUNT(*) FROM matchups"
+TOTAL_DRAFTS_QUERY = "SELECT COUNT(*) FROM drafts"
 
+INSERT_DRAFTS = "INSERT INTO drafts (year, pick_number, player, player_id, round, round_pick, team) VALUES (?, ?, ?, ?, ?, ?, ?)"
 
-def get_count(table="matchups"):
+PLAYER = "Player"
+PLAYER_ID = "PlayerID"
+ROUND = "Round"
+ROUND_PICK = "RoundPick"
+TEAM = "Team"
+
+def get_count(query=TOTAL_MATCHUPS_QUERY):
     conn = create_connection()
     cur = conn.cursor()
-    cur.execute(TOTAL_QUERY)
+    cur.execute(query)
     result = cur.fetchone()
     conn.close()
     return result[0]
@@ -102,7 +110,6 @@ def get_count(table="matchups"):
 # TODO: This should do a check to make sure the entry is not already there.
 def load_to_database():
     conn = create_connection()
-
     cur = conn.cursor()
 
     n = get_count()
@@ -117,7 +124,7 @@ def load_to_database():
         for week, matchups in year_dict.items():
             for matchup in matchups:
                 cur.execute(
-                    INSERT_QUERY,
+                    INSERT_MATCHUPS,
                     (
                         year,
                         week,
@@ -128,13 +135,20 @@ def load_to_database():
                     ),
                 )
 
-    cur.execute(TOTAL_QUERY)
-    result = cur.fetchone()
-    print(f"Inserted {result[0]} entries")
+    with open("drafts.json") as f:
+        data = json.load(f)
+
+    for year, picks in data.items():
+        for pick, entry in picks.items():
+            values = (year, pick, entry[PLAYER], entry[PLAYER_ID], entry[ROUND], entry[ROUND_PICK], entry[TEAM],)
+
+            cur.execute(INSERT_DRAFTS, values)
 
     conn.commit()
     conn.close()
-    return
+
+    print(f"Inserted {get_count()} entries into matchups table")
+    print(f"Inserted {get_count(query=TOTAL_DRAFTS_QUERY)} entries into drafts table")
 
 
 if __name__ == "__main__":
