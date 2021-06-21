@@ -88,6 +88,38 @@ def history():
     return render_template("history.html", data=data)
 
 
+@bp.route("/drafts")
+def drafts():
+    """Select a draft to get data from"""
+    query = "SELECT DISTINCT year FROM drafts"
+    db = get_db()
+    cur = db.cursor()
+
+    cur.execute(query)
+    years = [year[0] for year in cur.fetchall()]
+
+    return render_template("drafts.html", years=years)
+
+
+@bp.route("/draft/<year>")
+def draft(year: int):
+    query = "SELECT pick_number, round, round_pick, team, player FROM drafts WHERE year = ? ORDER BY pick_number ASC"
+    db = get_db()
+    cur = db.cursor()
+    cur.execute(query, (year, ))
+    data = []
+    for result in cur.fetchall():
+        data.append({
+            "pick_number": result[0],
+            "round": result[1],
+            "round_pick": result[2],
+            "team": result[3],
+            "player": result[4],
+        })
+
+    return render_template("draft.html", data=data)
+
+
 def sort_by_key(data: List[Dict[str, str]], key: str) -> None:
     """Simple bubble sort on list of dicts based on one key"""
     for i in range(len(data) - 1):

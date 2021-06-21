@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block header %}
+
+{% endblock %}
+
+{% block app_content %}
+    <h2>Draft History</h2>
+    <table class="table">
+        <tr>
+            <th scope="col">Pick #</th>
+            <th scope="col">Round</th>
+            <th scope="col">Round Pick</th>
+            <th scope="col">Team</th>
+            <th scope="col">Player</th>
+        </tr>
+        {% for d in data %}
+            <tr>
+                <td>{{ d.pick_number }}</td>
+                <td>{{ d.round }}</td>
+                <td>{{ d.round_pick }}</td>
+                <td>{{ d.team }}</td>
+                <td>{{ d.player }}</td>
+            </tr>
+        {% endfor %}
+    </table>
+{% endblock %}
